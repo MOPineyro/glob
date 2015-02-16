@@ -1,6 +1,6 @@
 ## Glob: Lob add-on for Google Docs 
 <img src="https://raw.githubusercontent.com/mikesteele/glob/master/screenshots/1.png">
-#### Converts current doc to PDF and sends it to Lob as a job.
+#### Send a Google Doc through the mail!
 <img src="https://raw.githubusercontent.com/mikesteele/glob/master/screenshots/4.png">
 
 ## How To Install (as Custom Script)
