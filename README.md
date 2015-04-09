@@ -1,5 +1,5 @@
 ## Glob: Lob add-on for Google Docs 
-#### Allows user to mail a Google Doc through <a href="http://lob.com">Lob</a>
+#### Allows user to mail a Google Doc through <a href="http://lob.com">Lob</a>.
 <img src="https://raw.githubusercontent.com/mikesteele/glob/master/screenshots/1.png">
 <img src="https://raw.githubusercontent.com/mikesteele/glob/master/screenshots/4.png">
 
