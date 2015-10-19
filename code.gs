@@ -162,7 +162,7 @@ function sendLetterRequest() {
     // 3. PDF the Doc
 
     var this_id = DocumentApp.getActiveDocument().getId();
-    var pdf = DriveApp.getFileById(this_id).getAs('application/pdf');
+    var pdf = DocumentApp.getActiveDocument().getAs('application/pdf');
 
     // 4. Finally, create the Letter object:
 
@@ -209,7 +209,7 @@ function getAddresses(api_key) {
 
 function getNumberOfPages() {
     var this_id = DocumentApp.getActiveDocument().getId();
-    var pdf = DriveApp.getFileById(this_id).getAs('application/pdf');
+    var pdf = DocumentApp.getActiveDocument().getAs('application/pdf');
     var data = pdf.getDataAsString();
     var re = /Pages\/Count (\d+)/g;
     var match;
