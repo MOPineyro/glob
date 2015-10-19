@@ -72,6 +72,10 @@ input {
 .contacts-list {
     display:none
 }
+
+.success {
+    color: green !important;
+}
     </style>
 
     <title></title>
@@ -183,7 +187,7 @@ function sendLetter() {
             "toZip": to.zip
         }
         google.script.run.withSuccessHandler(function(msg, element) {
-            showStatus('Letter successfully sent!', $('#button-bar'));
+            showSuccess('Letter successfully sent!', $('#button-bar'));
             element.disabled = false;
         }).withFailureHandler(function(msg, element) {
             showStatus(msg, $('#button-bar'));
@@ -281,6 +285,11 @@ function setCost(pages) {
 
 function showStatus(msg, element) {
     var div = $('<div>').attr('id', 'status').attr('class', 'error').text(msg);
+    $(element).after(div);
+}
+
+function showSuccess(msg, element) {
+    var div = $('<div>').attr('id', 'status').attr('class', 'success').text(msg);
     $(element).after(div);
 }
     </script>
