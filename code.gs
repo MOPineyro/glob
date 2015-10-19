@@ -9,6 +9,7 @@
  */
 var ADDON_TITLE = 'Lob';
 var NOTICE = "Test Lob add-on for Google Docs";
+
 /**
  * Adds a custom menu to the active form to show the add-on sidebar.
  *
@@ -16,20 +17,35 @@ var NOTICE = "Test Lob add-on for Google Docs";
  * determine which authorization mode (ScriptApp.AuthMode) the trigger is
  * running in, inspect e.authMode.
  */
+
+
+/**
+ * onOpen()
+ * ---------
+ * Runs when the add-on is installed.
+ *
+ * @param {object} e The event parameter for a simple onInstall trigger. To
+ * determine which authorization mode (ScriptApp.AuthMode) the trigger is
+ * running in, inspect e.authMode. (In practice, onInstall triggers always
+ * run in AuthMode.FULL, but onOpen triggers may be AuthMode.LIMITED or
+ * AuthMode.NONE).
+ */
+
 function onOpen(e) {
         var ui = DocumentApp.getUi();
         ui.createMenu('Lob').addItem('Send Doc as Letter', 'showSidebar').addToUi();
-    }
-    /**
-     * Runs when the add-on is installed.
-     *
-     * @param {object} e The event parameter for a simple onInstall trigger. To
-     * determine which authorization mode (ScriptApp.AuthMode) the trigger is
-     * running in, inspect e.authMode. (In practice, onInstall triggers always
-     * run in AuthMode.FULL, but onOpen triggers may be AuthMode.LIMITED or
-     * AuthMode.NONE).
-     */
-    //Helper to encode string in Base64
+}
+
+/**
+*
+* Base64.encode(e)
+*
+* --------
+* 
+* Helper function to encode Lob API key in Base64.
+*
+*/
+
 var Base64 = {
     _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     encode: function(e) {
@@ -54,32 +70,7 @@ var Base64 = {
         }
         return t
     },
-    decode: function(e) {
-        var t = "";
-        var n, r, i;
-        var s, o, u, a;
-        var f = 0;
-        e = e.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-        while (f < e.length) {
-            s = this._keyStr.indexOf(e.charAt(f++));
-            o = this._keyStr.indexOf(e.charAt(f++));
-            u = this._keyStr.indexOf(e.charAt(f++));
-            a = this._keyStr.indexOf(e.charAt(f++));
-            n = s << 2 | o >> 4;
-            r = (o & 15) << 4 | u >> 2;
-            i = (u & 3) << 6 | a;
-            t = t + String.fromCharCode(n);
-            if (u != 64) {
-                t = t + String.fromCharCode(r)
-            }
-            if (a != 64) {
-                t = t + String.fromCharCode(i)
-            }
-        }
-        t = Base64._utf8_decode(t);
-        return t
-    },
-    _utf8_encode: function(e) {
+      _utf8_encode: function(e) {
         e = e.replace(/\r\n/g, "\n");
         var t = "";
         for (var n = 0; n < e.length; n++) {
@@ -96,40 +87,34 @@ var Base64 = {
             }
         }
         return t
-    },
-    _utf8_decode: function(e) {
-        var t = "";
-        var n = 0;
-        var r = c1 = c2 = 0;
-        while (n < e.length) {
-            r = e.charCodeAt(n);
-            if (r < 128) {
-                t += String.fromCharCode(r);
-                n++
-            } else if (r > 191 && r < 224) {
-                c2 = e.charCodeAt(n + 1);
-                t += String.fromCharCode((r & 31) << 6 | c2 & 63);
-                n += 2
-            } else {
-                c2 = e.charCodeAt(n + 1);
-                c3 = e.charCodeAt(n + 2);
-                t += String.fromCharCode((r & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
-                n += 3
-            }
-        }
-        return t
     }
 }
 
 function onInstall(e) {
-        onOpen(e);
-    }
-    //Saves settings for Lob Job
+    onOpen(e);
+}
 
 function saveSettingsAndSendLetter(settings) {
     PropertiesService.getDocumentProperties().setProperties(settings);
     sendLetterRequest();
 }
+
+/**
+*
+* sendLetterRequest()
+* -------------------
+*
+* 1. It creates the addressee object, created from the fields in the form, 
+*    and saves the ID of the address object saved on the Lob server.
+*
+* 2. It creates the sender object in the same manner as above.
+*
+* 3. It creates a PDF out of the current doc
+*
+* 4. Using the sender, addressee, and PDF, it makes a final request 
+*    for Lob to create the Letter object. (and send the letter)
+*
+*/
 
 function sendLetterRequest() {
     var settings = PropertiesService.getDocumentProperties();
@@ -137,8 +122,10 @@ function sendLetterRequest() {
     var auth = Base64.encode(lob_api_key);
     var headers = {
             'Authorization': 'Basic ' + auth
-        }
-        //Creating the to address object
+    }
+
+    // 1. Creating the addressee object
+
     var to_address_obj = {
         name: settings.getProperty('toName'),
         address_line1: settings.getProperty('toAddress'),
@@ -154,8 +141,9 @@ function sendLetterRequest() {
     };
     var url = "https://api.lob.com/v1/addresses";
     var to_id = JSON.parse(UrlFetchApp.fetch(url, options).getContentText()).id;
-    //
-    //Creating the from address object
+    
+    // 2. Creating the sender object
+
     var from_address_obj = {
         name: settings.getProperty('fromName'),
         address_line1: settings.getProperty('fromAddress'),
@@ -170,54 +158,58 @@ function sendLetterRequest() {
         "headers": headers
     };
     var from_id = JSON.parse(UrlFetchApp.fetch(url, options).getContentText()).id;
-    //
-    //PDF the Doc and create an Object
+    
+    // 3. PDF the Doc
+
     var this_id = DocumentApp.getActiveDocument().getId();
-    var pdf = DocsList.getFileById(this_id).getAs('application/pdf');
-    var url = "https://api.lob.com/v1/objects";
-    var object1 = {
-        file: pdf,
-        setting: "100"
-    }
-    options = {
-        "method": "post",
-        "payload": object1,
-        "headers": headers
-    };
-    var object_id = JSON.parse(UrlFetchApp.fetch(url, options).getContentText()).id;
-    //
-    //Finally, create the job object:
-    var url = "https://api.lob.com/v1/jobs";
+    var pdf = DriveApp.getFileById(this_id).getAs('application/pdf');
+
+    // 4. Finally, create the Letter object:
+
+    var url = "https://api.lob.com/v1/letters";
     var letter = {
         to: to_id,
         from: from_id,
-        object1: object_id
+        file: pdf,
+        color: false
     }
     options = {
         "method": "post",
         "payload": letter,
         "headers": headers
     };
-    UrlFetchApp.fetch(url, options);
+    UrlFetchApp.fetch(url, options); 
 }
 
+
+
 function getAddresses(api_key) {
-        var auth = Base64.encode(api_key + ":");
-        var headers = {
-            'Authorization': 'Basic ' + auth
-        }
-        var url = "https://api.lob.com/v1/addresses/";
-        options = {
-            "method": "get",
-            "headers": headers
-        };
-        return JSON.parse(UrlFetchApp.fetch(url, options));
+    var auth = Base64.encode(api_key + ":");
+    var headers = {
+        'Authorization': 'Basic ' + auth
     }
-    
-//adapted from http://code.google.com/p/google-apps-script-issues/issues/detail?id=1656
+    var url = "https://api.lob.com/v1/addresses/";
+    options = {
+        "method": "get",
+        "headers": headers
+    };
+    return JSON.parse(UrlFetchApp.fetch(url, options));
+}
+
+/**
+*
+* getNumberOfPages()
+* ------------------
+*
+* Adapted from http://code.google.com/p/google-apps-script-issues/issues/detail?id=1656
+*
+* Calculates the amount of pages to estimate the price of the job.
+*
+*/
+
 function getNumberOfPages() {
     var this_id = DocumentApp.getActiveDocument().getId();
-    var pdf = DocsList.getFileById(this_id).getAs('application/pdf');
+    var pdf = DriveApp.getFileById(this_id).getAs('application/pdf');
     var data = pdf.getDataAsString();
     var re = /Pages\/Count (\d+)/g;
     var match;
