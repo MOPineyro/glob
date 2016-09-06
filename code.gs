@@ -41,7 +41,7 @@ function onOpen(e) {
 * Base64.encode(e)
 *
 * --------
-* 
+*
 * Helper function to encode Lob API key in Base64.
 *
 */
@@ -104,14 +104,14 @@ function saveSettingsAndSendLetter(settings) {
 * sendLetterRequest()
 * -------------------
 *
-* 1. It creates the addressee object, created from the fields in the form, 
+* 1. It creates the addressee object, created from the fields in the form,
 *    and saves the ID of the address object saved on the Lob server.
 *
 * 2. It creates the sender object in the same manner as above.
 *
 * 3. It creates a PDF out of the current doc
 *
-* 4. Using the sender, addressee, and PDF, it makes a final request 
+* 4. Using the sender, addressee, and PDF, it makes a final request
 *    for Lob to create the Letter object. (and send the letter)
 *
 */
@@ -128,7 +128,9 @@ function sendLetterRequest() {
 
     var to_address_obj = {
         name: settings.getProperty('toName'),
-        address_line1: settings.getProperty('toAddress'),
+        company: settings.getProperty('toCompany'),
+        address_line1: settings.getProperty('toAddress1'),
+        address_line2: settings.getProperty('toAddress2'),
         address_city: settings.getProperty('toCity'),
         address_state: settings.getProperty('toState'),
         address_zip: settings.getProperty('toZip'),
@@ -141,7 +143,7 @@ function sendLetterRequest() {
     };
     var url = "https://api.lob.com/v1/addresses";
     var to_id = JSON.parse(UrlFetchApp.fetch(url, options).getContentText()).id;
-    
+
     // 2. Creating the sender object
 
     var from_address_obj = {
@@ -158,7 +160,7 @@ function sendLetterRequest() {
         "headers": headers
     };
     var from_id = JSON.parse(UrlFetchApp.fetch(url, options).getContentText()).id;
-    
+
     // 3. PDF the Doc
 
     var this_id = DocumentApp.getActiveDocument().getId();
@@ -171,14 +173,15 @@ function sendLetterRequest() {
         to: to_id,
         from: from_id,
         file: pdf,
-        color: false
+        color: false,
+        address_placement: "insert_blank_page"
     }
     options = {
         "method": "post",
         "payload": letter,
         "headers": headers
     };
-    UrlFetchApp.fetch(url, options); 
+    UrlFetchApp.fetch(url, options);
 }
 
 

@@ -114,7 +114,11 @@ input {
 
             <p><label for="recipient-name">Name</label> <input class="width-100" id="recipient-name" style="width: 180px"></p>
 
-            <p><label for="recipient-address">Address</label> <input class="width-100" id="recipient-address" style="width: 180px"></p>
+            <p><label for="recipient-company">Company</label> <input class="width-100" id="recipient-company" style="width: 180px"></p>
+
+            <p><label for="recipient-address1">Address 1</label> <input class="width-100" id="recipient-address1" style="width: 180px"></p>
+
+            <p><label for="recipient-address2">Address 2</label> <input class="width-100" id="recipient-address2" style="width: 180px"></p>
 
             <p><label for="recipient-city">City</label> <input class="width-100" id="recipient-city" style="width: 180px"></p>
 
@@ -163,12 +167,14 @@ function sendLetter() {
         };
         var to = {
             "name": $("#recipient-name").val(),
-            "address": $("#recipient-address").val(),
+            "company": $("#recipient-company").val(),
+            "address1": $("#recipient-address1").val(),
+            "address2": $("#recipient-address2").val(),
             "city": $("#recipient-city").val(),
             "state": $("#recipient-state").val(),
             "zip": $("#recipient-zip").val()
         };
-        if (!to.name || !to.address || !to.city || !to.state || !to.zip || !from.name || !from.address || !from.city || !from.state || !from.zip || !api_key) {
+        if (!to.name || !to.address1 || !to.city || !to.state || !to.zip || !from.name || !from.address || !from.city || !from.state || !from.zip || !api_key) {
             showStatus('All fields must be filled!', $('#button-bar'));
             this.disabled = false;
             return;
@@ -176,12 +182,15 @@ function sendLetter() {
         var settings = {
             "apiKey": api_key,
             "fromName": from.name,
+            "fromCompany": from.company,
             "fromAddress": from.address,
             "fromCity": from.city,
             "fromState": from.state,
             "fromZip": from.zip,
             "toName": to.name,
-            "toAddress": to.address,
+            "toCompany": to.company,
+            "toAddress1": to.address1,
+            "toAddress2": to.address2,
             "toCity": to.city,
             "toState": to.state,
             "toZip": to.zip
@@ -249,7 +258,7 @@ function convert_state(name, to) {
         }
     });
     return returnthis;
-}     
+}
 
 function setContacts(msg) {
     var contacts_list = msg.data;
@@ -262,7 +271,9 @@ function setContacts(msg) {
     });
     $('select#to-contacts').on('change', function() {
         $('#recipient-name').val(contacts_list[$(this).val()].name);
-        $('#recipient-address').val(contacts_list[$(this).val()].address_line1);
+        $('#recipient-company').val(contacts_list[$(this).val()].company);
+        $('#recipient-address1').val(contacts_list[$(this).val()].address_line1);
+        $('#recipient-address2').val(contacts_list[$(this).val()].address_line2);
         $('#recipient-city').val(contacts_list[$(this).val()].address_city);
         $('#recipient-state').val(contacts_list[$(this).val()].address_state);
         $('#recipient-zip').val(contacts_list[$(this).val()].address_zip);
