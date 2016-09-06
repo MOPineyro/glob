@@ -125,6 +125,29 @@ input {
             <p><label for="recipient-state">State</label> <input class="width-100" id="recipient-state" style="width: 30px"></p>
 
             <p><label for="recipient-zip">Zip</label> <input class="width-100" id="recipient-zip" style="width: 60px"></p>
+
+            <h3>Extra</h3>
+            <p>
+                <label for="extra-return-env">Return Envelope</label>
+                <select id="extra-return-env">
+                    <option value="false" selected>False</option>
+                    <option value="true">True</option>
+                </select>
+            </p>
+            <p>
+                <label for="extra-service">Extra Service</label>
+                <select id="extra-service">
+                    <option value="" selected>---</option>
+                    <option value="certified">certified</option>
+                </select>
+            </p>
+            <p>
+                <label for="extra-placement">Address Location</label>
+                <select id="extra-placement">
+                    <option value="insert_blank_page" selected>Extra Page</option>
+                    <option value="top_first_page">Same Page</option>
+                </select>
+            </p>
         </form>
 
         <h3>Estimated Price: <span id="estimate_btn"><a>Calculate</a></span></h3><button class="action" id="send-letter">Send</button>
@@ -174,6 +197,11 @@ function sendLetter() {
             "state": $("#recipient-state").val(),
             "zip": $("#recipient-zip").val()
         };
+        var extra = {
+            "returnEnvelope": JSON.parse($("#extra-return-env").val()) || false,
+            "service": $("#extra-service").val(),
+            "placement": $("#extra-placement").val()
+        }
         if (!to.name || !to.address1 || !to.city || !to.state || !to.zip || !from.name || !from.address || !from.city || !from.state || !from.zip || !api_key) {
             showStatus('All fields must be filled!', $('#button-bar'));
             this.disabled = false;
@@ -193,11 +221,18 @@ function sendLetter() {
             "toAddress2": to.address2,
             "toCity": to.city,
             "toState": to.state,
-            "toZip": to.zip
+            "toZip": to.zip,
+            "returnEnv": extra.returnEnvelope ? extra.returnEnvelope : undefined,
+            "extraService": extra.service ? extra.service : undefined,
+            "addressPlacement": extra.placement
         }
+        console.log(settings);
         google.script.run.withSuccessHandler(function(msg, element) {
             showSuccess('Letter successfully sent!', $('#button-bar'));
             element.disabled = false;
+            console.log(extra);
+            var extra = {};
+            console.log(extra);
         }).withFailureHandler(function(msg, element) {
             showStatus(msg, $('#button-bar'));
             element.disabled = false;

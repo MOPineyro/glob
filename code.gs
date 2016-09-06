@@ -174,7 +174,10 @@ function sendLetterRequest() {
         from: from_id,
         file: pdf,
         color: false,
-        address_placement: "insert_blank_page"
+        address_placement: settings.getProperty('addressPlacement'),
+        extra_service: settings.getProperty('extraService'),
+        return_envelope: settings.getProperty('returnEnv'),
+        perforated_page: settings.getProperty('returnEnv') ? getNumberOfPages() : undefined
     }
     options = {
         "method": "post",
